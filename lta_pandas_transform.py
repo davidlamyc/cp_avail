@@ -29,7 +29,12 @@ df = df.rename(columns={
     'LotType': 'lot_type',
     'Agency': 'agency'
 })
+df['development'] = df['development'].str.replace(',',' ')
 df = df.assign(timestamp=timestamp)
 df = df.assign(source='lta')
+df[['update_datetime','total_lots']] = None
+
+print(df[df['carpark_id'] == 'C17'])
+# df[df['Age'] > 30]
 
 df.to_csv('lta_out.csv', encoding='utf-8', index=False)

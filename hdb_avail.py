@@ -2,7 +2,6 @@ import requests
 import json
 import uuid
 from datetime import datetime, timedelta
-from pytz import timezone
 
 def get_generated_datetimes(start, end, step=60):
    generated_datetimes = []
@@ -29,7 +28,7 @@ def get_file_name(dt):
     my_uuid = uuid.uuid4()
     now_sg_date = dt.date()
     now_sg_time_fmt = dt.strftime("%H:%M:%S").replace(":", "-")
-    return f'hdb_avail_{now_sg_date}_{now_sg_time_fmt}_{my_uuid}.json'
+    return f'.\input_data\hdb_avail_{now_sg_date}_{now_sg_time_fmt}_{my_uuid}.json'
 
 # write file to local fs
 def write_local(results, dt):
@@ -39,14 +38,16 @@ def write_local(results, dt):
 
 def main():
     generated_datetimes = get_generated_datetimes(
-        datetime(2025, 3, 2, 1, 30, 00, 00000), # exclusive of start datetime
-        datetime(2025, 3, 2, 4, 30, 00, 00000),
+        datetime(2025, 3, 14, 17, 30, 00, 00000), # exclusive of start datetime
+        datetime(2025, 3, 14, 18, 30, 00, 00000),
+        # datetime(2025, 3, 4, 14, 30, 00, 00000), # exclusive of start datetime
+        # datetime(2025, 3, 4, 15, 30, 00, 00000),
         60
     )
     print(generated_datetimes)
     for dt in generated_datetimes:
         results = fetch_hdb_avail(dt)
-        print(results)
+        # print(results)
         write_local(results, dt)
 
 if __name__ == "__main__":

@@ -41,6 +41,7 @@ def lambda_handler(event, context):
     })
     df = df.assign(timestamp=timestamp)
     df = df.assign(source='lta')
+    df[['update_datetime','total_lots']] = None
 
     # df.show()
 

@@ -12,6 +12,10 @@
 * Created pyspark scripts, will not use due to pandas being a better choice for smaller data
 * Created transformation portion of pipeline
 
+## 14/3/202
+* Created lambda function to transform HDB data, decided to manually pull HDB data due to inconsistencies with their API
+* Set initial batch of data to team
+
 # Tasks
 
 - [x] fix file name
@@ -21,3 +25,5 @@
 - [] operationalize deployment of code, layer, etc.
 - [] shift trigger to IAM account
 
+# Proccessing tracker
+- up to 16th March
