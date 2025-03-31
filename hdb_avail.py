@@ -38,8 +38,8 @@ def write_local(results, dt):
 
 def main():
     generated_datetimes = get_generated_datetimes(
-        datetime(2025, 3, 14, 17, 30, 00, 00000), # exclusive of start datetime
-        datetime(2025, 3, 14, 18, 30, 00, 00000),
+        datetime(2025, 3, 26, 23, 30, 00, 00000), # exclusive of start datetime
+        datetime(2025, 3, 27, 23, 30, 00, 00000),
         # datetime(2025, 3, 4, 14, 30, 00, 00000), # exclusive of start datetime
         # datetime(2025, 3, 4, 15, 30, 00, 00000),
         60
