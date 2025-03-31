@@ -1,0 +1,27 @@
+{
+  "name": "onemap-react-maplibre-demo",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "antd": "^5.24.4",
+    "maplibre-gl": "^4.1.0",
+    "next": "14.1.3",
+    "react": "18.2.0",
+    "react-dom": "18.2.0",
+    "react-map-gl": "^7.1.7"
+  },
+  "devDependencies": {
+    "@types/node": "20.11.25",
+    "@types/react": "18.2.64",
+    "@types/react-dom": "18.2.21",
+    "eslint": "8.57.0",
+    "eslint-config-next": "14.1.3",
+    "typescript": "5.4.2"
+  }
+}
