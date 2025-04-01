@@ -50,7 +50,10 @@ const IndexPage: NextPage = () => {
         'Accept': 'application/json',
         'Content-Type': 'application/json'
       },
-      body: JSON.stringify({ "postal_code": parseInt(value) ? parseInt(value) : 238801 }),
+      body: JSON.stringify({
+        "postal_code": parseInt(value) ? parseInt(value) : 238801,
+        "prediction_timestamp": "2025-03-30 01:00:00"
+      }),
     })
       .then((response) => response.json())
       .then((data) => {
@@ -165,12 +168,15 @@ const IndexPage: NextPage = () => {
                     className="mrt-marker"
                     onClick={() => flyTo([location.longitude, location.latitude])}
                   >
-                    {location.address} - {location.total_distance_in_km}km
+                    <p>{location.address}</p>
+                    <p>Walking distance: {location.total_distance_in_km}km</p>
+                    <p>Predicted availability: {location.predicted_availability} lots</p>
+                    <p>Recommendation score: {location.recommendation_score}</p>
                     <style jsx>{`
               .mrt-marker {
                 background: red;
                 color: white;
-                padding: 4px;
+                padding: 2px;
               }
             `}</style>
                   </div>

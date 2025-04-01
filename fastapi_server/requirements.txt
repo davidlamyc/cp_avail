@@ -4,3 +4,5 @@ pandas
 requests
 haversine
 python-dotenv
+xgboost
+scikit-learn

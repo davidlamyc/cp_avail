@@ -1,7 +1,8 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from app_models import Item, RecommendationsRequest
+from app_models import RecommendationsRequest
+from predict import predict_multiple_carparks_same_timestamp
 import json
 import pandas as pd
 import math
@@ -19,9 +20,24 @@ load_dotenv() # Comment out before building docker image
 MY_EMAIL = os.getenv('MY_EMAIL') # replace before building docker image
 MY_PASSWORD = os.getenv('MY_PASSWORD') # replace before building docker image
 
+# load carparkavail data
+# specify the data type
+dtype_spec = {
+    'carpark_id': 'string',
+    'area': 'category',
+    'development': 'category',
+    'location': 'string',
+    'available_lots': 'int',
+    'lot_type': 'category',
+    'agency': 'category',
+    'source': 'category',
+    'update_datetime': 'string',
+}
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     dataframes['init_carpark_info_df'] = pd.read_csv('carpark_information.csv',encoding='cp1252')
+    dataframes['init_carpark_avail_df'] = pd.read_csv("raw_carpark_avail_020325_290325.csv", dtype=dtype_spec, parse_dates=['timestamp'])
     tokens['onemap_token'] = getOnemapAuthToken()
     yield
     dataframes.clear()
@@ -99,24 +115,43 @@ def get_walking_distance_time(start_lat, start_lon, end_lat, end_lon, token):
     
 @app.post("/recommendations")
 def get_recommendations(recommendationRequest:RecommendationsRequest):
-    print(f'Processing starting with postal code {recommendationRequest.postal_code}')
+    print(f'Processing starting with postal code {recommendationRequest.postal_code} and timestamp {recommendationRequest.prediction_timestamp}')
     print('Onemap token' + tokens['onemap_token'])
 
     carpark_info_df = dataframes['init_carpark_info_df']
+    avail_df = dataframes['init_carpark_avail_df']
     my_latitude, my_longitude = getGeolocationByPostalCode(recommendationRequest.postal_code)
     carpark_info_df['distance'] = carpark_info_df.apply(getDistance, axis=1, my_latitude=my_latitude, my_longitude=my_longitude)
     carpark_info_df_sorted = carpark_info_df.sort_values('distance')
-    
-    print(carpark_info_df_sorted.head(TOP_N))
 
     carpark_info_top_n = carpark_info_df_sorted.head(TOP_N).to_json(orient="records")
     carpark_info_top_n_json = json.loads(carpark_info_top_n)
 
-    result = []
+    # TODO: everything below can be refactored, too messy, needs comments
+
+    top_n_with_walking_dist = []
     for record in carpark_info_top_n_json:
         total_time, total_distance = get_walking_distance_time(my_latitude, my_longitude, record['latitude'], record['longitude'], tokens['onemap_token'])
         record['total_time_in_min'] = total_time
         record['total_distance_in_km'] = total_distance
-        result.append(record)
+        top_n_with_walking_dist.append(record)
     
-    return result # sort by total distance
+    top_n_carpark_codes = list(map(lambda n: n['carpark_id'], top_n_with_walking_dist))
+    prediction_dict=predict_multiple_carparks_same_timestamp(carpark_ids=top_n_carpark_codes, ts_str=recommendationRequest.prediction_timestamp, carpark_info_df=carpark_info_df, avail_df=avail_df)
+
+    top_n_with_walking_dist_and_predicted_avail = []
+    for record in top_n_with_walking_dist:
+        record['predicted_availability'] = prediction_dict.get(record['carpark_id'])
+        top_n_with_walking_dist_and_predicted_avail.append(record)
+
+    result_df = pd.DataFrame.from_records(top_n_with_walking_dist_and_predicted_avail)
+
+    result_df['normalized_predicted_availability'] = result_df['predicted_availability'] / result_df['predicted_availability'].max()
+    result_df['normalized_total_distance_in_km'] = result_df['total_distance_in_km'] / result_df['total_distance_in_km'].max()
+    result_df['normalized_total_distance_in_km_inverse'] = 1 - result_df['normalized_total_distance_in_km']
+    result_df['recommendation_score'] = (result_df['normalized_predicted_availability'] * 0.5) + (result_df['normalized_total_distance_in_km_inverse'] * 0.5)
+    result_df = result_df.sort_values(by='recommendation_score', ascending=False)
+    print(result_df)
+
+    result = result_df.to_json(orient='records')
+    return json.loads(result)
