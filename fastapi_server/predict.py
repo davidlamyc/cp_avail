@@ -134,6 +134,7 @@ def build_feature_vector(
 def get_lag_24_value(
     carpark_id: str,
     ts: pd.Timestamp,
+    carpark_info_df: pd.DataFrame,
     df_avail: pd.DataFrame,
     recursion_depth=0,
     max_depth=1
@@ -159,6 +160,8 @@ def get_lag_24_value(
         return predict_availability(
             carpark_id,
             t_past.isoformat(),
+            carpark_info_df,
+            df_avail,
             recursion_depth=recursion_depth + 1,
             max_depth=max_depth
         )
@@ -172,6 +175,8 @@ def get_lag_24_value(
 def predict_availability(
     carpark_id: str,
     ts_str: str,
+    carpark_info_df: pd.DataFrame,
+    df_avail: pd.DataFrame,
     recursion_depth=0,
     max_depth=1
 ) -> int:
@@ -185,12 +190,14 @@ def predict_availability(
     lag_24_val = get_lag_24_value(
         carpark_id,
         ts,
+        carpark_info_df,
+        df_avail,
         recursion_depth=recursion_depth,
         max_depth=max_depth
     )
 
     # 2) Build one-row feature vector
-    X_row = build_feature_vector(carpark_id, ts, lag_24_val)
+    X_row = build_feature_vector(carpark_id, ts, lag_24_val, carpark_info_df)
 
     # 3) Call the model's predict method
     pred = model.predict(X_row)
@@ -214,6 +221,7 @@ def _build_row_for_carpark(
     lag_24_val = get_lag_24_value(
         carpark_id,
         ts,
+        carpark_info_df,
         avail_df,
         recursion_depth=recursion_depth,
         max_depth=max_depth

@@ -1,6 +1,8 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.encoders import jsonable_encoder
+from fastapi.responses import JSONResponse
 from app_models import RecommendationsRequest
 from predict import predict_multiple_carparks_same_timestamp
 import json
@@ -116,7 +118,7 @@ def get_walking_distance_time(start_lat, start_lon, end_lat, end_lon, token):
 @app.post("/recommendations")
 def get_recommendations(recommendationRequest:RecommendationsRequest):
     print(f'Processing starting with postal code {recommendationRequest.postal_code} and timestamp {recommendationRequest.prediction_timestamp}')
-    print('Onemap token' + tokens['onemap_token'])
+    # print('Onemap token' + tokens['onemap_token'])
 
     carpark_info_df = dataframes['init_carpark_info_df']
     avail_df = dataframes['init_carpark_avail_df']
@@ -153,5 +155,13 @@ def get_recommendations(recommendationRequest:RecommendationsRequest):
     result_df = result_df.sort_values(by='recommendation_score', ascending=False)
     print(result_df)
 
-    result = result_df.to_json(orient='records')
-    return json.loads(result)
+    result = result_df.to_dict(orient='records')
+
+    response = {}
+    response['destination'] = {}
+    response['destination']['postal_code'] = recommendationRequest.postal_code
+    response['destination']['latitude'] = my_latitude
+    response['destination']['longitude'] = my_longitude
+    response['result'] = result
+
+    return JSONResponse(content=response)
