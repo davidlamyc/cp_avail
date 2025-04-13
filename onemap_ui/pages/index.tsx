@@ -4,19 +4,7 @@ import Map, { Layer, MapRef, Marker, Source } from "react-map-gl/maplibre";
 import { useEffect, useState } from 'react';
 import { ConfigProvider, Breadcrumb, Layout, Menu, theme, Button, Form, Input, DatePicker, Tag, Popover, Alert } from 'antd/lib';
 const { Header, Content, Footer } = Layout;
-
-// const locations = [
-//   {
-//     latitude: 1.3614206826,
-//     longitude: 103.8430844601,
-//     name: "BLK 246-256 BISHAN STREET 22",
-//   },
-//   {
-//     latitude: 1.3609610362,
-//     longitude: 103.8436216081,
-//     name: "BLK 246A BISHAN STREET 22",
-//   },
-// ];
+import { CarOutlined, FlagOutlined } from '@ant-design/icons';
 
 const items = Array.from({ length: 1 }).map((_, index) => ({
   key: String(index + 1),
@@ -156,6 +144,7 @@ const IndexPage: NextPage = () => {
   };
 
   useEffect(() => {
+    console.log("ts: " + value.prediction_timestamp)
     setIsLoading(true);
     fetch('http://localhost:8000/recommendations', {
       method: "POST",
@@ -295,7 +284,7 @@ const IndexPage: NextPage = () => {
             <Map
               ref={mapRef}
               maxBounds={[103.596, 1.1443, 104.1, 1.4835]}
-              mapStyle="https://www.onemap.gov.sg/maps/json/raster/mbstyle/Grey.json"
+              mapStyle="https://www.onemap.gov.sg/maps/json/raster/mbstyle/Night.json"
               style={{
                 width: "90vw",
                 height: "90vh",
@@ -306,7 +295,7 @@ const IndexPage: NextPage = () => {
                 latitude={destination.latitude}
                 longitude={destination.longitude}
               >
-                <Tag color="red">{destination.postal_code}</Tag>
+                <Tag color="yellow"><FlagOutlined /> {destination.postal_code}</Tag>
               </Marker>
               {locations.map((location) => (
                 <Marker
@@ -323,9 +312,10 @@ const IndexPage: NextPage = () => {
                         <p>Predicted availability: {location.predicted_availability} lots</p>
                         <p>Walking distance: {location.total_distance_in_km} km</p>
                         <p>Recommendation score: {location.recommendation_score}</p>
+                        <p>Rate: {location.rate}</p>
                       </>
                     )} title="Information">
-                      <Tag color="blue">{location.address}</Tag>
+                      <Tag color="orange"><CarOutlined /> {location.address}</Tag>
                     </Popover>
                     {/* <p>{location.address}</p>
                     <p>Walking distance: {location.total_distance_in_km}km</p>

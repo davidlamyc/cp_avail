@@ -5,6 +5,7 @@ from fastapi.encoders import jsonable_encoder
 from fastapi.responses import JSONResponse
 from app_models import RecommendationsRequest
 from predict import predict_multiple_carparks_same_timestamp
+from rates import calculate_parking_rate
 import json
 import pandas as pd
 import math
@@ -134,8 +135,10 @@ def get_recommendations(recommendationRequest:RecommendationsRequest):
     top_n_with_walking_dist = []
     for record in carpark_info_top_n_json:
         total_time, total_distance = get_walking_distance_time(my_latitude, my_longitude, record['latitude'], record['longitude'], tokens['onemap_token'])
+        rate = calculate_parking_rate(record['carpark_id'], recommendationRequest.prediction_timestamp)
         record['total_time_in_min'] = total_time
         record['total_distance_in_km'] = total_distance
+        record['rate'] = rate
         top_n_with_walking_dist.append(record)
     
     top_n_carpark_codes = list(map(lambda n: n['carpark_id'], top_n_with_walking_dist))
@@ -150,8 +153,10 @@ def get_recommendations(recommendationRequest:RecommendationsRequest):
 
     result_df['normalized_predicted_availability'] = result_df['predicted_availability'] / result_df['predicted_availability'].max()
     result_df['normalized_total_distance_in_km'] = result_df['total_distance_in_km'] / result_df['total_distance_in_km'].max()
+    result_df['normalized_rate'] = result_df['rate'] / result_df['rate'].max()
     result_df['normalized_total_distance_in_km_inverse'] = 1 - result_df['normalized_total_distance_in_km']
-    result_df['recommendation_score'] = (result_df['normalized_predicted_availability'] * 0.5) + (result_df['normalized_total_distance_in_km_inverse'] * 0.5)
+    result_df['normalized_rate_inverse'] = 1 - result_df['normalized_rate']
+    result_df['recommendation_score'] = (result_df['normalized_predicted_availability'] * 0.333333) + (result_df['normalized_total_distance_in_km_inverse'] * 0.333333) + (result_df['normalized_rate_inverse'] * 0.333333)
     result_df = result_df.sort_values(by='recommendation_score', ascending=False)
     print(result_df)
 
