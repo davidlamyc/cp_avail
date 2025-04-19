@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 import { ConfigProvider, Breadcrumb, Layout, Menu, theme, Button, Form, Input, DatePicker, Tag, Popover, Alert } from 'antd/lib';
 const { Header, Content, Footer } = Layout;
 import { CarOutlined, FlagOutlined } from '@ant-design/icons';
+import moment from 'moment-timezone';
 
 const items = Array.from({ length: 1 }).map((_, index) => ({
   key: String(index + 1),
@@ -30,11 +31,15 @@ const IndexPage: NextPage = () => {
         "distance": 1.5114173927,
         "total_time_in_min": 48,
         "total_distance_in_km": 3.93,
-        "predicted_availability": 234,
+        "rate": 1.2,
+        "predicted_availability": 199,
         "normalized_predicted_availability": 1.0,
         "normalized_total_distance_in_km": 1.0,
+        "normalized_rate": 0.00012001200120012,
         "normalized_total_distance_in_km_inverse": 0.0,
-        "recommendation_score": 0.5
+        "normalized_rate_inverse": 0.9998799879987998,
+        "recommendation_score": 0.6666259960396039,
+        "rank": 1
     },
     {
         "carpark_id": "W0029",
@@ -50,11 +55,15 @@ const IndexPage: NextPage = () => {
         "distance": 0.6351689794,
         "total_time_in_min": 29,
         "total_distance_in_km": 2.34,
-        "predicted_availability": 63,
-        "normalized_predicted_availability": 0.2692307692307692,
+        "rate": 2.4,
+        "predicted_availability": 52,
+        "normalized_predicted_availability": 0.2613065326633166,
         "normalized_total_distance_in_km": 0.5954198473282443,
+        "normalized_rate": 0.00024002400240024,
         "normalized_total_distance_in_km_inverse": 0.40458015267175573,
-        "recommendation_score": 0.3369054609512625
+        "normalized_rate_inverse": 0.9997599759975998,
+        "recommendation_score": 0.5552149985620036,
+        "rank": 2
     },
     {
         "carpark_id": "P0106",
@@ -70,11 +79,15 @@ const IndexPage: NextPage = () => {
         "distance": 0.938677936,
         "total_time_in_min": 22,
         "total_distance_in_km": 1.79,
-        "predicted_availability": 3,
-        "normalized_predicted_availability": 0.01282051282051282,
+        "rate": 2.4,
+        "predicted_availability": 22,
+        "normalized_predicted_availability": 0.11055276381909548,
         "normalized_total_distance_in_km": 0.45547073791348597,
+        "normalized_rate": 0.00024002400240024,
         "normalized_total_distance_in_km_inverse": 0.5445292620865141,
-        "recommendation_score": 0.27867488745351343
+        "normalized_rate_inverse": 0.9997599759975998,
+        "recommendation_score": 0.5516134490204025,
+        "rank": 3
     },
     {
         "carpark_id": "AR1M",
@@ -90,11 +103,15 @@ const IndexPage: NextPage = () => {
         "distance": 1.4287765211,
         "total_time_in_min": 44,
         "total_distance_in_km": 3.63,
-        "predicted_availability": 106,
-        "normalized_predicted_availability": 0.452991452991453,
+        "rate": 1.2,
+        "predicted_availability": 108,
+        "normalized_predicted_availability": 0.542713567839196,
         "normalized_total_distance_in_km": 0.9236641221374046,
+        "normalized_rate": 0.00012001200120012,
         "normalized_total_distance_in_km_inverse": 0.07633587786259544,
-        "recommendation_score": 0.26466366542702424
+        "normalized_rate_inverse": 0.9998799879987998,
+        "recommendation_score": 0.5396426049237192,
+        "rank": 4
     },
     {
         "carpark_id": "AR1L",
@@ -110,11 +127,15 @@ const IndexPage: NextPage = () => {
         "distance": 1.4689092265,
         "total_time_in_min": 46,
         "total_distance_in_km": 3.77,
+        "rate": 9999.0,
         "predicted_availability": 1,
-        "normalized_predicted_availability": 0.004273504273504274,
+        "normalized_predicted_availability": 0.005025125628140704,
         "normalized_total_distance_in_km": 0.9592875318066157,
+        "normalized_rate": 1.0,
         "normalized_total_distance_in_km_inverse": 0.040712468193384255,
-        "recommendation_score": 0.022492986233444263
+        "normalized_rate_inverse": 0.0,
+        "recommendation_score": 0.01524584936131038,
+        "rank": 5
     }
 ]);
   const [destination, setDestination] = useState({
@@ -122,10 +143,10 @@ const IndexPage: NextPage = () => {
     "latitude": 1.29214851229716,
     "longitude": 103.776550885502
 });
-  const [value, setValue] = useState(
+  const [initialValue, setInitialValue] = useState(
     {
       "postal_code": 119615,
-      "prediction_timestamp": "2025-03-30 01:00:00" // todo: change to next hour of dataset?
+      "prediction_timestamp": "2025-04-14 01:00:00" // todo: change to next hour of dataset?
     }
   );
   const [isLoading, setIsLoading] = useState(false);
@@ -144,7 +165,8 @@ const IndexPage: NextPage = () => {
   };
 
   useEffect(() => {
-    console.log("ts: " + value.prediction_timestamp)
+    console.log("useEffect")
+    const sgtTime = moment.tz(initialValue.prediction_timestamp,'Asia/Singapore')
     setIsLoading(true);
     fetch('http://localhost:8000/recommendations', {
       method: "POST",
@@ -153,8 +175,9 @@ const IndexPage: NextPage = () => {
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        "postal_code": parseInt(value.postal_code) ? parseInt(value.postal_code) : 238801,
-        "prediction_timestamp": value.prediction_timestamp
+        "postal_code": parseInt(initialValue.postal_code) ? parseInt(initialValue.postal_code) : 238801,
+        "prediction_timestamp": sgtTime,
+        // "prediction_timestamp": value.prediction_timestamp
       }),
     })
       .then((response) => response.json())
@@ -167,11 +190,37 @@ const IndexPage: NextPage = () => {
         console.log(e);
         setIsLoading(false)
       });
-  }, [value]);
+  }, []);
 
   const onFinish = (values) => {
-    console.log('Success:', values);
-    setValue(values);
+    console.log('Form onFinish:', values);
+    console.log('raw timestamp:', values.prediction_timestamp)
+    // adding back 8 hours to compensate for antd automagically converting to UTC
+    const sgtTime = values.prediction_timestamp.add(8,'hour')
+    console.log("sgt: " + sgtTime)
+    setIsLoading(true);
+    fetch('http://localhost:8000/recommendations', {
+      method: "POST",
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        "postal_code": parseInt(values.postal_code) ? parseInt(values.postal_code) : 238801,
+        "prediction_timestamp": sgtTime,
+        // "prediction_timestamp": values.prediction_timestamp
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setLocations(data.result);
+        setDestination(data.destination);
+        setIsLoading(false);
+      })
+      .catch(e => {
+        console.log(e);
+        setIsLoading(false)
+      });
   };
   const onFinishFailed = (errorInfo) => {
     console.log('Failed:', errorInfo);
@@ -266,6 +315,7 @@ const IndexPage: NextPage = () => {
                   onChange={(value, dateString) => {
                     console.log('Selected Time: ', value);
                     console.log('Formatted Selected Time: ', dateString);
+                    // setValue({ ...value, prediction_timestamp: dateString })
                   }}
                 />
                 </Form.Item>
@@ -295,7 +345,7 @@ const IndexPage: NextPage = () => {
                 latitude={destination.latitude}
                 longitude={destination.longitude}
               >
-                <Tag color="yellow"><FlagOutlined /> {destination.postal_code}</Tag>
+                <Tag color="yellow"><FlagOutlined /> Destination Postal Code: {destination.postal_code}</Tag>
               </Marker>
               {locations.map((location) => (
                 <Marker
@@ -309,25 +359,15 @@ const IndexPage: NextPage = () => {
                   >
                     <Popover content={(
                       <>
-                        <p>Predicted availability: {location.predicted_availability} lots</p>
-                        <p>Walking distance: {location.total_distance_in_km} km</p>
-                        <p>Recommendation score: {location.recommendation_score}</p>
-                        <p>Rate: {location.rate}</p>
+                        <p>Predicted Availability: {location.predicted_availability} lots</p>
+                        <p>Distance to Destination: {location.total_distance_in_km} km</p>
+                        <p>Estimated Rate (1 hour): ${location.rate}</p>
+                        {/* <p>Recommendation score: {location.recommendation_score}</p> */}
+                        <p>Recommendation Rank: {location.rank}</p>
                       </>
                     )} title="Information">
-                      <Tag color="orange"><CarOutlined /> {location.address}</Tag>
+                      <Tag color={location.rank == 1 ? 'orange' : 'blue'}><CarOutlined /> {location.address} ({location.carpark_id})</Tag>
                     </Popover>
-                    {/* <p>{location.address}</p>
-                    <p>Walking distance: {location.total_distance_in_km}km</p>
-                    <p>Predicted availability: {location.predicted_availability} lots</p>
-                    <p>Recommendation score: {location.recommendation_score}</p>
-                    <style jsx>{`
-                      .mrt-marker {
-                        background: red;
-                        color: white;
-                        padding: 2px;
-                      }
-                    `}</style> */}
                   </div>
                 </Marker>
               ))}

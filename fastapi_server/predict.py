@@ -40,16 +40,6 @@ dtype_spec = {
     'update_datetime': 'string',
 }
 
-## pass dataframes in from calling functions instead of loading at the module level, so DFs only loaded once
-
-# df_avail = pd.read_csv("raw_carpark_avail_020325_290325.csv",
-#                             dtype=dtype_spec, parse_dates=['timestamp']) # TODO: preload
-
-# carpark_info_df = pd.read_csv("carpark_information.csv",encoding='cp1252') # TODO: preload/reuse
-# carpark_info_df['carpark_id'] = carpark_info_df['carpark_id'].astype(str)
-# carpark_info_df = carpark_info_df.dropna(subset=['area'])
-
-
 ###############################################################################
 # 1) Simple helper to check df_avail for (carpark_id, same date + hour).
 ###############################################################################

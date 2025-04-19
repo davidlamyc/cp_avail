@@ -15,7 +15,7 @@ def fetch_hdb_avail(datetime):
     # YYYY-MM-DD[T]HH:MM:SS
     datetime_str = datetime.isoformat()
     print('datetime_str: ' + datetime_str)
-    url = 'https://api.data.gov.sg/v1/transport/carpark-availability?date_time=' + datetime_str
+    url = 'https://api.data.gov.sg/v1/transport/carpark-availability?date_time=' + datetime_str # 2025-04-13T23:30:00
     response = requests.get(url)
 
     if response.status_code == 200:
@@ -38,8 +38,8 @@ def write_local(results, dt):
 
 def main():
     generated_datetimes = get_generated_datetimes(
-        datetime(2025, 3, 26, 23, 30, 00, 00000), # exclusive of start datetime
-        datetime(2025, 3, 27, 23, 30, 00, 00000),
+        datetime(2025, 4, 13, 22, 30, 00, 00000), # exclusive of start datetime
+        datetime(2025, 4, 13, 23, 30, 00, 00000),
         # datetime(2025, 3, 4, 14, 30, 00, 00000), # exclusive of start datetime
         # datetime(2025, 3, 4, 15, 30, 00, 00000),
         60
