@@ -1,0 +1,1 @@
+select * from carpark_availability where timestamp < CAST('2025-04-14' AS DATE) and carpark_id IN ('1','HE12') order by timestamp desc limit 10;

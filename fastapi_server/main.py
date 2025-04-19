@@ -40,7 +40,7 @@ dtype_spec = {
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     dataframes['init_carpark_info_df'] = pd.read_csv('carpark_information.csv',encoding='cp1252')
-    dataframes['init_carpark_avail_df'] = pd.read_csv("raw_carpark_avail_020325_290325.csv", dtype=dtype_spec, parse_dates=['timestamp'])
+    dataframes['init_carpark_avail_df'] = pd.read_csv("raw_carpark_avail_020325_130425.csv", dtype=dtype_spec, parse_dates=['timestamp'])
     tokens['onemap_token'] = getOnemapAuthToken()
     yield
     dataframes.clear()
@@ -161,12 +161,18 @@ def get_recommendations(recommendationRequest:RecommendationsRequest):
     print(result_df)
 
     result = result_df.to_dict(orient='records')
+    current_rank = 1
+    ranked_result = []
+    for r in result:
+        r['rank'] = current_rank
+        current_rank = current_rank + 1
+        ranked_result.append(r)
 
     response = {}
     response['destination'] = {}
     response['destination']['postal_code'] = recommendationRequest.postal_code
     response['destination']['latitude'] = my_latitude
     response['destination']['longitude'] = my_longitude
-    response['result'] = result
+    response['result'] = ranked_result
 
     return JSONResponse(content=response)
