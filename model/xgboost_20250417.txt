@@ -1,0 +1,20 @@
+ taskset -c 0-16 python model_clean_without\ lag.py
+  carpark_id         development           location  available_lots lot_type agency           timestamp update_datetime  hour  day_of_week  is_weekend        date  is_holiday           area  total_lots
+0          1         Suntec City  1.29375 103.85718            2700        C    LTA 2025-03-15 00:08:50            <NA>     0            5           1  2025-03-15           0  DOWNTOWN CORE        2870
+1          2       Marina Square  1.29115 103.85728            1767        C    LTA 2025-03-15 00:08:50            <NA>     0            5           1  2025-03-15           0  DOWNTOWN CORE        1860
+2          3        Raffles City  1.29382 103.85319             863        C    LTA 2025-03-15 00:08:50            <NA>     0            5           1  2025-03-15           0  DOWNTOWN CORE         913
+3          4       The Esplanade  1.29011 103.85561             721        C    LTA 2025-03-15 00:08:50            <NA>     0            5           1  2025-03-15           0  DOWNTOWN CORE         747
+4          5  Millenia Singapore  1.29251 103.86009            1238        C    LTA 2025-03-15 00:08:50            <NA>     0            5           1  2025-03-15           0  DOWNTOWN CORE        1475
+Time range in dataset: 2025-03-02 00:29:27 → 2025-03-30 07:08:50
+Model RMSE: 35.93
+Model R²: 0.9741
+           feature  importance
+4       total_lots    0.691570
+6   agency_encoded    0.142933
+5     area_encoded    0.067854
+7  carpark_encoded    0.065033
+0             hour    0.023181
+1      day_of_week    0.009430
+3       is_holiday    0.000000
+2       is_weekend    0.000000
+
