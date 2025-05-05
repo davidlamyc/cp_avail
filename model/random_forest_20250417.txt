@@ -1,0 +1,22 @@
+~/Desktop/Dou/big_data  on master !2 ?1 ....... KILL  took 15s  big_data py  at 11:31:52 PM
+> taskset -c 0-16 python random\ forest.py
+  carpark_id         development           location  ...  is_holiday           area total_lots
+0          1         Suntec City  1.29375 103.85718  ...           0  DOWNTOWN CORE       2870
+1          2       Marina Square  1.29115 103.85728  ...           0  DOWNTOWN CORE       1860
+2          3        Raffles City  1.29382 103.85319  ...           0  DOWNTOWN CORE        913
+3          4       The Esplanade  1.29011 103.85561  ...           0  DOWNTOWN CORE        747
+4          5  Millenia Singapore  1.29251 103.86009  ...           0  DOWNTOWN CORE       1475
+
+[5 rows x 15 columns]
+Time range in dataset: 2025-03-02 00:29:27 → 2025-03-30 07:08:50
+           feature  importance
+4       total_lots    0.783626
+7  carpark_encoded    0.108405
+5     area_encoded    0.046316
+0             hour    0.031791
+6   agency_encoded    0.026345
+1      day_of_week    0.002183
+2       is_weekend    0.001334
+3       is_holiday    0.000000
+Model RMSE: 48.29
+Model R²: 0.9532435438724556
